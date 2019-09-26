@@ -25,7 +25,7 @@ type (
 	
 	validaktorInitializer interface {
 		getValidator(tag string) validator
-		ValidateStruct(s interface{}) []error
+		ValidateData(s interface{}) []error
 	}
 
 	initializer interface {
@@ -51,17 +51,12 @@ func (vldk *validaktor) getValidator(tag string) validator {
 	}
 }
 
-func (vldk *validaktor) ValidateStruct(s interface{}) []error {
+func (vldk *validaktor) ValidateData(s interface{}) []error {
 	var errs []error
 
 	v := reflect.ValueOf(s)
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
-	}
-
-	t := reflect.TypeOf(s)
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
 	}
 
 	for i := 0; i < v.NumField(); i++ {
@@ -72,7 +67,7 @@ func (vldk *validaktor) ValidateStruct(s interface{}) []error {
 
 		validator := vldk.getValidator(tag)
 		if _, err := validator.validate(v.Field(i).Interface()); err != nil {
-			errs = append(errs, fmt.Errorf("%s struct error in %s: %s", t.Name(), v.Type().Field(i).Name, err.Error()))
+			errs = append(errs, fmt.Errorf("struct error in %s: %s", v.Type().Field(i).Name, err.Error()))
 		}
 	}
 

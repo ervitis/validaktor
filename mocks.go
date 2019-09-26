@@ -18,7 +18,7 @@ func (m *mockValidaktor) getValidator(tag string) validator {
 	return args.Get(0).(validator)
 }
 
-func (m *mockValidaktor) ValidateStruct(s interface{}) []error {
+func (m *mockValidaktor) ValidateData(s interface{}) []error {
 	args := m.Called(0)
 	return args.Get(0).([]error)
 }

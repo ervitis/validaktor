@@ -57,13 +57,13 @@ func TestValidateStruct(t *testing.T) {
 
 	validaktor := NewValidaktor()
 
-	errors := validaktor.ValidateStruct(f)
+	errors := validaktor.ValidateData(f)
 	assert.Len(t, errors, 0)
 
-	errors = validaktor.ValidateStruct(&f)
+	errors = validaktor.ValidateData(&f)
 	assert.Len(t, errors, 0)
 
 	f.Age = "3"
-	errors = validaktor.ValidateStruct(f)
+	errors = validaktor.ValidateData(f)
 	assert.Len(t, errors, 1)
 }
