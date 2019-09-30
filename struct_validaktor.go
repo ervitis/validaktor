@@ -39,7 +39,7 @@ func (v *structValidator) validate(data interface{}) (bool, error) {
 		validator := v.v.getValidator(tag)
 		ifdata := dv.Field(i).Interface()
 		if (*[2]uintptr)(unsafe.Pointer(&ifdata))[1] == 0 {
-			return true, nil
+			return false, newStructValidatorError("the struct is empty or nil")
 		}
 
 		if _, err := validator.validate(ifdata); err != nil {
