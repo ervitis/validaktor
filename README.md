@@ -28,7 +28,7 @@ func main() {
 }
 ```
 
-You can see more examples inside the `exmples` folder.
+You can see more examples inside the `examples` folder.
 
 You can add more validators sending a pull request or doing it in your local machine. For more information read the next point in this document.
 
@@ -124,6 +124,14 @@ func TestRegexValidate(t *testing.T) {
 ```
 
 We can prepare the test data using an struct and then iterate it inside the for loop.
+
+### Test dependencies
+
+Install in your system `golangci-lint` for lint your code.
+
+Also you need to install `make` in your system. Then write in your console:
+
+> make check
 
 ## Built With
 
