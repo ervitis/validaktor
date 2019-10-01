@@ -22,11 +22,6 @@ type (
 	validaktor struct{
 		initializer initializer
 	}
-	
-	validaktorInitializer interface {
-		getValidator(tag string) validator
-		ValidateData(s interface{}) []error
-	}
 
 	initializer interface {
 		initializeValidators(tags ...string) map[string]validator
