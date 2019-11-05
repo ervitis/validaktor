@@ -19,6 +19,10 @@ type (
 		Name         string        `validate:"regex,exp=[a-zA-Z0-9]+"`
 		BusinessSite *BusinessSite `validate:"struct"`
 	}
+
+	Invoice struct {
+		Months []string `validate:"array,min=2,max=12,isEmpty=false"`
+	}
 )
 
 func main() {
@@ -67,5 +71,9 @@ func main() {
 	}
 
 	errors = validator.ValidateData(businessSite)
+	fmt.Println(errors)
+
+	invoices := Invoice{Months: []string{"Enero", "", "Marzo"}}
+	errors = validator.ValidateData(invoices)
 	fmt.Println(errors)
 }

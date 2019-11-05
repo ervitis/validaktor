@@ -24,7 +24,7 @@ type (
 	}
 
 	initializer interface {
-		initializeValidators(tags ...string) map[string]validator
+		initializeValidators(tags ...string) validator
 	}
 )
 
@@ -39,11 +39,7 @@ func (v *notImplementedValidator) validate(data interface{}) (bool, error) {
 func (vldk *validaktor) getValidator(tag string) validator {
 	tagArg := strings.Split(tag, ",")
 
-	if v, ok := vldk.initializer.initializeValidators(tagArg[1:]...)[tagArg[0]]; !ok {
-		return &notImplementedValidator{tag: tagArg[0]}
-	} else {
-		return v
-	}
+	return vldk.initializer.initializeValidators(tagArg...)
 }
 
 func (vldk *validaktor) ValidateData(s interface{}) []error {

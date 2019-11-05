@@ -8,7 +8,7 @@ type (
 	}
 )
 
-func (m *mockValidaktor) initializeValidators(tags ...string) map[string]validator {
+func (m *mockValidaktor) initializeValidators(tags ...string) validator {
 	args := m.Called(tags)
-	return args.Get(0).(map[string]validator)
+	return args.Get(0).(validator)
 }

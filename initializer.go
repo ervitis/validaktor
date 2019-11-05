@@ -1,26 +1,41 @@
 package validaktor
 
-import "strings"
+import (
+	"regexp"
+	"strconv"
+	"strings"
+)
 
 type initValidaktor struct{}
 
-func (vldkini *initValidaktor) initializeValidators(tags ...string) map[string]validator {
-	if len(tags) > 0 {
-		return vldkini.initWithArguments(tags...)
+func (vldkini *initValidaktor) initializeValidators(tags ...string) validator {
+	switch tags[0] {
+	case "regex":
+		return &regexValidator{regex: strings.Split(tags[1], "=")[1]}
+	case "array":
+		r := regexp.MustCompile(`(min=(?P<min>\d+))?,?(max=(?P<max>\d+))?,?(contentType=(?P<contentType>(number|string|boolean)))?,?(isEmpty=(?P<isEmpty>(true|false)))?,?`)
+		m := r.FindStringSubmatch(strings.Join(tags[1:], ","))
+		n := r.SubexpNames()
+		d := mapSubexpNames(m, n)
+		b, _ := strconv.ParseBool(d["isEmpty"])
+		mx, _ := strconv.Atoi(d["max"])
+		mn, _ := strconv.Atoi(d["min"])
+		return NewArrayValidator(WithIsEmpty(b), WithMax(mx), WithMin(mn))
+	case "struct":
+		return &structValidator{v: NewValidaktor()}
+	default:
+		return &notImplementedValidator{tag: tags[0]}
 	}
-	return vldkini.initWithoutArguments()
 }
 
-// Function to use for the user
-func (vldkini *initValidaktor) initWithArguments(tags ...string) map[string]validator {
-	return map[string]validator{
-		"regex":  &regexValidator{regex: strings.Split(tags[0], "=")[1]},
+func mapSubexpNames(m, n []string) map[string]string {
+	m, n = m[1:], n[1:]
+	r := make(map[string]string, len(m))
+	for i, _ := range n {
+		if n[i] != "" {
+			r[n[i]] = m[i]
+		}
 	}
-}
 
-// Function to use for the user
-func (vldkini *initValidaktor) initWithoutArguments() map[string]validator {
-	return map[string]validator{
-		"struct": &structValidator{v: NewValidaktor()},
-	}
+	return r
 }

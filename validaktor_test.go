@@ -13,7 +13,7 @@ func (v *myValidator) validate(d interface{}) (bool, error) {return false, nil}
 
 func TestGetValidatorType(t *testing.T) {
 	mockito := &mockValidaktor{}
-	mockito.On("initializeValidators", []string{"exp=[A-Z]{3}"}).Return(map[string]validator{"custom": &myValidator{}})
+	mockito.On("initializeValidators", []string{"custom", "exp=[A-Z]{3}"}).Return(&myValidator{})
 
 	validaktor := &validaktor{mockito}
 
@@ -22,7 +22,7 @@ func TestGetValidatorType(t *testing.T) {
 
 func TestGetValidator(t *testing.T) {
 	mockito := &mockValidaktor{}
-	mockito.On("initializeValidators", []string{"exp=[A-Z]{3}"}).Return(map[string]validator{"custom": &myValidator{}})
+	mockito.On("initializeValidators", []string{"custom", "exp=[A-Z]{3}"}).Return(&myValidator{})
 
 	validaktor := &validaktor{mockito}
 
@@ -31,7 +31,7 @@ func TestGetValidator(t *testing.T) {
 
 func TestGetValidatorNotImplemented(t *testing.T) {
 	mockito := &mockValidaktor{}
-	mockito.On("initializeValidators", []string{"exp=[A-Z]{3}"}).Return(map[string]validator{"custom": &myValidator{}})
+	mockito.On("initializeValidators", []string{"another", "exp=[A-Z]{3}"}).Return(&notImplementedValidator{tag: "another"})
 
 	validaktor := &validaktor{mockito}
 
