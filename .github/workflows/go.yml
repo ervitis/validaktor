@@ -23,9 +23,12 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
-        
-    - name: Tests
-      run: go test -race -v ./...
+
+    - name: Lint&Tests
+      run: make check
+
+    - name: Coverage
+      run: make cover
 
     - name: Build
       run: go build -v .
