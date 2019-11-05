@@ -75,9 +75,16 @@ func (v *regexValidator) validate(data interface{}) (bool, error) {
 }
 ```
 
-After the validator implementation, let's add it in the `initializer.go` file. Because the `regexValidator` is using a parameter we add it inside the function `initWithArguments`.
+After the validator implementation, let's add it in the `initializer.go` file. Let's see the `regex` type:
 
-If it doesn't need any parameter, you should initialize the constructor inside the `initWithoutArguments` method.
+```go
+func (vldkini *initValidaktor) initializeValidators(tags ...string) validator {
+	switch tags[0] {
+	case "regex":
+		return &regexValidator{regex: strings.Split(tags[1], "=")[1]}
+    ...
+}
+```
 
 After that, implement the unit tests.
 
