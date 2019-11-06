@@ -31,7 +31,7 @@ func (vldkini *initValidaktor) initializeValidators(tags ...string) validator {
 func mapSubexpNames(m, n []string) map[string]string {
 	m, n = m[1:], n[1:]
 	r := make(map[string]string, len(m))
-	for i, _ := range n {
+	for i := range n {
 		if n[i] != "" {
 			r[n[i]] = m[i]
 		}

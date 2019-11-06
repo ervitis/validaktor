@@ -36,13 +36,13 @@ func (v *structValidator) validate(data interface{}) (bool, error) {
 			continue
 		}
 
-		validator := v.v.getValidator(tag)
+		vtor := v.v.getValidator(tag)
 		ifdata := dv.Field(i).Interface()
 		if (*[2]uintptr)(unsafe.Pointer(&ifdata))[1] == 0 {
 			return false, newStructValidatorError("the struct is empty or nil")
 		}
 
-		if _, err := validator.validate(ifdata); err != nil {
+		if _, err := vtor.validate(ifdata); err != nil {
 			return false, err
 		}
 	}
