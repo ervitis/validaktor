@@ -20,7 +20,6 @@ notifications:
   email: false
 
 script:
-  - go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
   - make check
   - make cover
 

@@ -2,6 +2,7 @@ test:
 	go test -race -v ./...
 
 lint:
+	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	golangci-lint run
 
 check: lint test
