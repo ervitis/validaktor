@@ -67,6 +67,13 @@ func (e *regexError) Error() string {
 Let's implement the `validate` method.
 
 ```go
+func (v *regexValidator) applyValidatorOptions(args ...string) error {
+	// implement logic and validations for the tag
+	// if there is an error, return it properly
+	
+	return nil
+}
+
 func (v *regexValidator) validate(data interface{}) (bool, error) {
     // implement the validation. You can use here the custom errors created before
     // ...
@@ -78,11 +85,11 @@ func (v *regexValidator) validate(data interface{}) (bool, error) {
 After the validator implementation, let's add it in the `initializer.go` file. Let's see the `regex` type:
 
 ```go
-func (vldkini *initValidaktor) initializeValidators(tags ...string) validator {
-	switch tags[0] {
-	case "regex":
-		return &regexValidator{regex: strings.Split(tags[1], "=")[1]}
-    ...
+func validators() map[string]validator {
+    return map[string]validator {
+        "regex": &regexValidator{},
+        ...
+    }
 }
 ```
 

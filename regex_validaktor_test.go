@@ -1,6 +1,9 @@
 package validaktor
 
-import "testing"
+import (
+	"regexp"
+	"testing"
+)
 
 type testRegex struct {
 	exp     string
@@ -19,7 +22,7 @@ func TestRegexValidate(t *testing.T) {
 	}
 
 	for _, v := range testData {
-		validator := &regexValidator{regex: v.exp}
+		validator := &regexValidator{regex: regexp.MustCompile(v.exp)}
 		isValid, err := validator.validate(v.data)
 		if v.isValid != isValid {
 			t.Errorf("%+v != %+v it should be valid with data %+v", v.isValid, isValid, v.data)
@@ -40,7 +43,7 @@ func TestRegexValidateKo(t *testing.T) {
 	}
 
 	for _, v := range testData {
-		validator := &regexValidator{regex: v.exp}
+		validator := &regexValidator{regex: regexp.MustCompile(v.exp)}
 		isValid, _ := validator.validate(v.data)
 		if v.isValid != isValid {
 			t.Errorf("%+v != %+v it should not be valid with data %+v", v.isValid, isValid, v.data)

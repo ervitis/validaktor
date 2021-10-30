@@ -2,6 +2,7 @@ package validaktor
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -9,36 +10,21 @@ type (
 	myValidator struct{}
 )
 
-func (v *myValidator) validate(d interface{}) (bool, error) {return false, nil}
+func (v *myValidator) validate(_ interface{}) (bool, error)    { return false, nil }
+func (v *myValidator) applyValidatorOptions(_ ...string) error { return nil }
 
 func TestGetValidatorType(t *testing.T) {
-	mockito := &mockValidaktor{}
-	mockito.On("initializeValidators", []string{"custom", "exp=[A-Z]{3}"}).Return(&myValidator{})
+	validaktor := NewValidaktor()
+	v, err := validaktor.getValidator("regex,exp=[A-Z]{3}")
+	require.NoError(t, err)
 
-	validaktor := &validaktor{mockito}
-
-	assert.IsType(t, &myValidator{}, validaktor.getValidator("custom,exp=[A-Z]{3}"))
-}
-
-func TestGetValidator(t *testing.T) {
-	mockito := &mockValidaktor{}
-	mockito.On("initializeValidators", []string{"custom", "exp=[A-Z]{3}"}).Return(&myValidator{})
-
-	validaktor := &validaktor{mockito}
-
-	assert.NotEqual(t, validaktor.getValidator("custom,exp=[A-Z]{3}"), &notImplementedValidator{})
+	require.IsType(t, &regexValidator{}, v)
 }
 
 func TestGetValidatorNotImplemented(t *testing.T) {
-	mockito := &mockValidaktor{}
-	mockito.On("initializeValidators", []string{"another", "exp=[A-Z]{3}"}).Return(&notImplementedValidator{tag: "another"})
-
-	validaktor := &validaktor{mockito}
-
-	assert.Equal(t, &notImplementedValidator{tag: "another"}, validaktor.getValidator("another,exp=[A-Z]{3}"))
-
-	_, err := validaktor.getValidator("another,exp=[A-Z]{3}").validate(nil)
-	assert.Errorf(t, err, "nil validator or not implemented for tag another")
+	validaktor := NewValidaktor()
+	_, err := validaktor.getValidator("errorCustom,exp=[A-Z]{3}")
+	require.Error(t, err)
 }
 
 func TestNewValidaktor(t *testing.T) {

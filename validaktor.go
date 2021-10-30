@@ -12,34 +12,35 @@ const (
 
 type (
 	validator interface {
-		validate(data interface{}) (bool, error)
+		validate(interface{}) (bool, error)
+		applyValidatorOptions(...string) error
 	}
 
-	notImplementedValidator struct{
-		tag string
-	}
-	
-	validaktor struct{
-		initializer initializer
+	tag struct {
+		validatorType string
+		data          interface{}
 	}
 
-	initializer interface {
-		initializeValidators(tags ...string) validator
+	validaktor struct {
+		v map[string]validator
 	}
 )
 
 func NewValidaktor() *validaktor {
-	return &validaktor{initializer: &initValidaktor{}}
+	return &validaktor{v: validators()}
 }
 
-func (v *notImplementedValidator) validate(data interface{}) (bool, error) {
-	return false, fmt.Errorf("nil validator or not implemented for tag %s", v.tag)
-}
+func (vldk *validaktor) getValidator(tag string) (validator, error) {
+	tags := strings.Split(tag, ",")
+	if len(tags) < 1 {
+		return nil, fmt.Errorf("validate: tags structure is not correct")
+	}
 
-func (vldk *validaktor) getValidator(tag string) validator {
-	tagArg := strings.Split(tag, ",")
-
-	return vldk.initializer.initializeValidators(tagArg...)
+	if v, ok := vldk.v[tags[0]]; !ok {
+		return nil, fmt.Errorf("validator not found")
+	} else {
+		return v, nil
+	}
 }
 
 func (vldk *validaktor) ValidateData(s interface{}) []error {
@@ -56,9 +57,28 @@ func (vldk *validaktor) ValidateData(s interface{}) []error {
 			continue
 		}
 
-		validator := vldk.getValidator(tag)
+		data := strings.Split(tag, ",")
+		if len(data) != 2 {
+			errs = append(errs, fmt.Errorf("incorrect use of tag"))
+			return errs
+		}
+
+		tag = data[0]
+		args := data[1]
+
+		validator, err := vldk.getValidator(tag)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("validate: %w", err))
+			return errs
+		}
+
+		if err := validator.applyValidatorOptions(args); err != nil {
+			errs = append(errs, fmt.Errorf("validate: %w", err))
+			return errs
+		}
+
 		if _, err := validator.validate(v.Field(i).Interface()); err != nil {
-			errs = append(errs, fmt.Errorf("struct error in %s: %s", v.Type().Field(i).Name, err.Error()))
+			errs = append(errs, fmt.Errorf("validate: error in %s: %w", v.Type().Field(i).Name, err))
 		}
 	}
 

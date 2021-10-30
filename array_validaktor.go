@@ -3,11 +3,15 @@ package validaktor
 import (
 	"fmt"
 	"reflect"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 type (
 	arrayValidator struct {
 		arrayOptions
+		regx *regexp.Regexp
 	}
 
 	arrayError struct {
@@ -15,8 +19,8 @@ type (
 	}
 
 	arrayOptions struct {
-		min, max    int
-		isEmpty     bool
+		min, max int
+		isEmpty  bool
 	}
 
 	ArrayOption interface {
@@ -50,16 +54,29 @@ func WithIsEmpty(isEmpty bool) ArrayOption {
 
 func NewArrayValidator(options ...ArrayOption) *arrayValidator {
 	opts := &arrayOptions{
-		min:         0,
-		max:         0,
-		isEmpty:     false,
+		min:     0,
+		max:     0,
+		isEmpty: false,
 	}
 	for _, opt := range options {
 		opt.apply(opts)
 	}
 	return &arrayValidator{
-		*opts,
+		arrayOptions: *opts,
+		regx:         regexp.MustCompile(`(min=(?P<min>\d+))?,?(max=(?P<max>\d+))?,?(contentType=(?P<contentType>(number|string|boolean)))?,?(isEmpty=(?P<isEmpty>(true|false)))?,?`),
 	}
+}
+
+func mapSubexpNames(m, n []string) map[string]string {
+	m, n = m[1:], n[1:]
+	r := make(map[string]string, len(m))
+	for i := range n {
+		if n[i] != "" {
+			r[n[i]] = m[i]
+		}
+	}
+
+	return r
 }
 
 func newArrayValidatorError(message string) *arrayError {
@@ -70,7 +87,34 @@ func (e *arrayError) Error() string {
 	return e.message
 }
 
-func (v arrayValidator) validate(data interface{}) (bool, error) {
+func (v *arrayValidator) applyValidatorOptions(args ...string) error {
+	m := v.regx.FindStringSubmatch(strings.Join(args[1:], ","))
+	n := v.regx.SubexpNames()
+	d := mapSubexpNames(m, n)
+
+	b, err := strconv.ParseBool(d["isEmpty"])
+	if err != nil {
+		return fmt.Errorf("arrayValidator: apply options error parse isEmpty: %w", err)
+	}
+
+	mx, err := strconv.Atoi(d["max"])
+	if err != nil {
+		return fmt.Errorf("arrayValidator: apply options error parse max: %w", err)
+	}
+
+	mn, err := strconv.Atoi(d["min"])
+	if err != nil {
+		return fmt.Errorf("arrayValidator: apply options error parse min: %w", err)
+	}
+
+	v.min = mn
+	v.max = mx
+	v.isEmpty = b
+
+	return nil
+}
+
+func (v *arrayValidator) validate(data interface{}) (bool, error) {
 	var sl reflect.Value
 
 	switch reflect.TypeOf(data).Kind() {
