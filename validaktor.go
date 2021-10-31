@@ -16,11 +16,6 @@ type (
 		applyValidatorOptions(...string) error
 	}
 
-	tag struct {
-		validatorType string
-		data          interface{}
-	}
-
 	validaktor struct {
 		v map[string]validator
 	}

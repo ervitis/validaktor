@@ -6,13 +6,6 @@ import (
 	"testing"
 )
 
-type (
-	myValidator struct{}
-)
-
-func (v *myValidator) validate(_ interface{}) (bool, error)    { return false, nil }
-func (v *myValidator) applyValidatorOptions(_ ...string) error { return nil }
-
 func TestGetValidatorType(t *testing.T) {
 	validaktor := NewValidaktor()
 	v, err := validaktor.getValidator("regex,exp=[A-Z]{3}")
